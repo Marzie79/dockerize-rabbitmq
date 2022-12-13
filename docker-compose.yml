@@ -1,0 +1,51 @@
+version: '3.9'
+
+services:
+
+  rabbitmq1:
+    image: rabbitmq:3-management
+    container_name: rabbitmq1
+    hostname: rabbit1
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq/
+      - rabbitmq_log:/var/log/rabbitmq/
+      - erlang_cookie:/var/lib/rabbitmq/mnesia/.erlang.cookie
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      - RABBITMQ_NODENAME=rabbitmq1
+      - RABBITMQ_DEFAULT_USER=username
+      - RABBITMQ_DEFAULT_PASS=password
+
+  rabbitmq2:
+    image: rabbitmq:3-management
+    container_name: rabbitmq2
+    hostname: rabbit2
+    depends_on:
+      - rabbitmq1
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq/
+      - erlang_cookie:/var/lib/rabbitmq/mnesia/.erlang.cookie
+    environment:
+      - RABBITMQ_NODENAME=rabbitmq2
+
+  rabbitmq3:
+    image: rabbitmq:3-management
+    hostname: rabbit3
+    container_name: rabbitmq3
+    depends_on:
+      - rabbitmq1
+      - rabbitmq2
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq/
+      - erlang_cookie:/var/lib/rabbitmq/mnesia/.erlang.cookie
+    environment:
+      - RABBITMQ_NODENAME=rabbitmq3
+volumes:
+  rabbitmq_data:
+    driver: local
+  rabbitmq_log:
+    driver: local
+  erlang_cookie:
+    driver: local
